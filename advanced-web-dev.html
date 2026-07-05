@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Advanced Styling and JavaScript</title>
+
+<!-- ===================== CSS ===================== -->
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f2f4f3;
+    color: #1c1c1c;
+    margin: 0;
+  }
+
+  header {
+    background: #0d5c4f;
+    color: #fff;
+    padding: 26px 20px;
+    text-align: center;
+  }
+
+  header h1 { margin: 0 0 6px 0; font-size: 28px; }
+  header p { margin: 0; opacity: 0.9; }
+
+  main {
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  section {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+  }
+
+  section h2 {
+    color: #0d5c4f;
+    border-bottom: 2px solid #0d5c4f;
+    padding-bottom: 6px;
+    margin-top: 0;
+  }
+
+  /* ===== STEP 1: RESPONSIVE DESIGN WITH MEDIA QUERIES ===== */
+  .device-demo {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    font-size: 18px;
+  }
+
+  .device-demo .card {
+    background: #f2f4f3;
+    padding: 16px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: bold;
+    color: #0d5c4f;
+  }
+
+  /* Tablet */
+  @media (max-width: 800px) {
+    .device-demo { grid-template-columns: repeat(2, 1fr); }
+    header h1 { font-size: 24px; }
+  }
+
+  /* Mobile */
+  @media (max-width: 480px) {
+    .device-demo { grid-template-columns: 1fr; font-size: 15px; }
+    header h1 { font-size: 20px; }
+    section { padding: 16px; }
+  }
+
+  /* ===== STEP 2: QUIZ ===== */
+  #quizBox { font-size: 16px; }
+  #quizQuestion { font-weight: bold; margin-bottom: 14px; }
+
+  .quiz-option {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: #f2f4f3;
+    cursor: pointer;
+    font-size: 15px;
+    transition: background 0.15s;
+  }
+
+  .quiz-option:hover { background: #e2ece9; }
+  .quiz-option.correct { background: #c6efce; border-color: #1b8a3f; }
+  .quiz-option.incorrect { background: #f5c6cb; border-color: #c0392b; }
+
+  #quizFeedback { font-weight: bold; min-height: 20px; margin-top: 10px; }
+  #quizScore { color: #0d5c4f; font-weight: bold; }
+
+  .btn {
+    padding: 10px 18px;
+    font-size: 15px;
+    font-weight: bold;
+    color: #fff;
+    background: #0d5c4f;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  .btn:hover { background: #14806e; transform: translateY(-1px); }
+  .btn:disabled { background: #aaa; cursor: not-allowed; transform: none; }
+
+  /* ===== STEP 3: API FETCH ===== */
+  #jokeBox {
+    background: #f2f4f3;
+    border-radius: 8px;
+    padding: 18px;
+    min-height: 60px;
+    font-size: 16px;
+    margin-bottom: 14px;
+  }
+
+  #jokeStatus { font-size: 13px; color: #777; }
+
+  footer {
+    text-align: center;
+    color: #777;
+    font-size: 13px;
+    padding: 20px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Advanced Styling and JavaScript</h1>
+  <p>Responsive media queries, an interactive quiz, and live API data.</p>
+</header>
+
+<main>
+
+  <!-- ===== STEP 1: RESPONSIVE DESIGN ===== -->
+  <section>
+    <h2>1. Responsive Design with Media Queries</h2>
+    <p>Resize your browser window — this grid reflows from 3 columns (desktop) → 2 columns (tablet) → 1 column (mobile), and text sizes adjust too.</p>
+    <div class="device-demo">
+      <div class="card">🖥️ Desktop</div>
+      <div class="card">💻 Tablet</div>
+      <div class="card">📱 Mobile</div>
+    </div>
+  </section>
+
+  <!-- ===== STEP 2: INTERACTIVE QUIZ ===== -->
+  <section>
+    <h2>2. Interactive Quiz</h2>
+    <div id="quizBox">
+      <div id="quizQuestion"></div>
+      <div id="quizOptions"></div>
+      <div id="quizFeedback"></div>
+      <p>Score: <span id="quizScore">0</span> / <span id="quizTotal">0</span></p>
+      <button class="btn" id="restartQuizBtn">Restart Quiz</button>
+    </div>
+  </section>
+
+  <!-- ===== STEP 3: FETCH DATA FROM API ===== -->
+  <section>
+    <h2>3. Fetch Data from an API</h2>
+    <p>Click the button to fetch a random joke from a public API and display it dynamically.</p>
+    <div id="jokeBox">Click "Get Joke" to load one from the API...</div>
+    <button class="btn" id="getJokeBtn">Get Joke</button>
+    <div id="jokeStatus"></div>
+  </section>
+
+</main>
+
+<footer>Built to illustrate responsive layouts, JavaScript-driven interactivity, and API integration.</footer>
+
+<!-- ===================== JAVASCRIPT ===================== -->
+<script>
+  // ---------- STEP 2: QUIZ ----------
+  var quizData = [
+    {
+      question: "Which HTML tag is used to link an external CSS file?",
+      options: ["<style>", "<link>", "<script>", "<css>"],
+      answer: 1
+    },
+    {
+      question: "Which CSS property is used to create space between flex items?",
+      options: ["margin", "spacing", "gap", "padding-between"],
+      answer: 2
+    },
+    {
+      question: "Which JavaScript method adds an event listener to an element?",
+      options: ["element.on()", "element.addEventListener()", "element.listen()", "element.bind()"],
+      answer: 1
+    },
+    {
+      question: "What does 'DOM' stand for?",
+      options: ["Document Object Model", "Data Object Method", "Display Order Model", "Document Order Map"],
+      answer: 0
+    },
+    {
+      question: "Which CSS unit is relative to the viewport width?",
+      options: ["em", "rem", "vw", "px"],
+      answer: 2
+    }
+  ];
+
+  var currentQ = 0;
+  var score = 0;
+  var answered = false;
+
+  var qEl = document.getElementById('quizQuestion');
+  var optsEl = document.getElementById('quizOptions');
+  var feedbackEl = document.getElementById('quizFeedback');
+  var scoreEl = document.getElementById('quizScore');
+  var totalEl = document.getElementById('quizTotal');
+
+  totalEl.textContent = quizData.length;
+
+  function loadQuestion() {
+    answered = false;
+    feedbackEl.textContent = '';
+    var q = quizData[currentQ];
+    qEl.textContent = (currentQ + 1) + ". " + q.question;
+    optsEl.innerHTML = '';
+
+    q.options.forEach(function (opt, idx) {
+      var btn = document.createElement('button');
+      btn.className = 'quiz-option';
+      btn.textContent = opt;
+      btn.addEventListener('click', function () {
+        if (answered) return;
+        answered = true;
+        var allOptions = optsEl.querySelectorAll('.quiz-option');
+
+        if (idx === q.answer) {
+          btn.classList.add('correct');
+          feedbackEl.textContent = '✅ Correct!';
+          feedbackEl.style.color = '#1b8a3f';
+          score++;
+          scoreEl.textContent = score;
+        } else {
+          btn.classList.add('incorrect');
+          allOptions[q.answer].classList.add('correct');
+          feedbackEl.textContent = '❌ Incorrect.';
+          feedbackEl.style.color = '#c0392b';
+        }
+
+        setTimeout(function () {
+          currentQ++;
+          if (currentQ < quizData.length) {
+            loadQuestion();
+          } else {
+            qEl.textContent = "Quiz complete! Final score: " + score + " / " + quizData.length;
+            optsEl.innerHTML = '';
+            feedbackEl.textContent = '';
+          }
+        }, 1200);
+      });
+      optsEl.appendChild(btn);
+    });
+  }
+
+  document.getElementById('restartQuizBtn').addEventListener('click', function () {
+    currentQ = 0;
+    score = 0;
+    scoreEl.textContent = 0;
+    loadQuestion();
+  });
+
+  loadQuestion();
+
+  // ---------- STEP 3: FETCH DATA FROM API ----------
+  var jokeBox = document.getElementById('jokeBox');
+  var jokeStatus = document.getElementById('jokeStatus');
+  var getJokeBtn = document.getElementById('getJokeBtn');
+
+  // Local fallback jokes, used only if all live API calls fail
+  // (e.g. no internet access, or fetch blocked when the file is opened directly from disk)
+  var fallbackJokes = [
+    "Why do programmers prefer dark mode? Because light attracts bugs.",
+    "Why did the developer go broke? Because they used up all their cache.",
+    "How many programmers does it take to change a light bulb? None, that's a hardware problem.",
+    "Why do Java developers wear glasses? Because they don't C#.",
+    "A SQL query walks into a bar, walks up to two tables and asks: Can I join you?"
+  ];
+
+  function showFallbackJoke(reason) {
+    var joke = fallbackJokes[Math.floor(Math.random() * fallbackJokes.length)];
+    jokeBox.textContent = joke;
+    jokeStatus.textContent = 'Showing a local fallback joke (' + reason + ').';
+  }
+
+  function tryFetch(url, parseFn) {
+    return fetch(url, { headers: { 'Accept': 'application/json' } })
+      .then(function (response) {
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        return response.json();
+      })
+      .then(parseFn);
+  }
+
+  getJokeBtn.addEventListener('click', function () {
+    jokeStatus.textContent = 'Loading...';
+    getJokeBtn.disabled = true;
+
+    // Try API #1
+    tryFetch('https://official-joke-api.appspot.com/random_joke', function (data) {
+      jokeBox.textContent = data.setup + " — " + data.punchline;
+      jokeStatus.textContent = 'Loaded from official-joke-api.appspot.com';
+    })
+    .catch(function () {
+      // Try API #2 as a backup
+      return tryFetch('https://v2.jokeapi.dev/joke/Any?type=twopart', function (data) {
+        jokeBox.textContent = data.setup + " — " + data.delivery;
+        jokeStatus.textContent = 'Loaded from v2.jokeapi.dev';
+      });
+    })
+    .catch(function (err) {
+      // Both live APIs failed (likely no internet access, or fetch blocked
+      // because the file was opened directly from disk instead of via a server)
+      showFallbackJoke('live fetch failed: ' + err.message);
+    })
+    .finally(function () {
+      getJokeBtn.disabled = false;
+    });
+  });
+</script>
+
+</body>
+</html>

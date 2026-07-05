@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>To-Do &amp; Notes App (with Local Storage)</title>
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f2f4f3;
+    color: #1c1c1c;
+    margin: 0;
+  }
+
+  header {
+    background: #0d5c4f;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+  }
+
+  header p { margin: 4px 0 0 0; opacity: 0.9; }
+
+  main {
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  @media (max-width: 700px) {
+    main { grid-template-columns: 1fr; }
+  }
+
+  section {
+    background: #fff;
+    border-radius: 12px;
+    padding: 22px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+  }
+
+  section h2 {
+    color: #0d5c4f;
+    border-bottom: 2px solid #0d5c4f;
+    padding-bottom: 6px;
+    margin-top: 0;
+  }
+
+  .input-row { display: flex; gap: 8px; margin-bottom: 14px; }
+  .input-row input, .input-row textarea { flex: 1; }
+
+  input, textarea {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+  }
+
+  .btn {
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+    background: #0d5c4f;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .btn:hover { background: #14806e; }
+  .btn.danger { background: #c0392b; }
+  .btn.danger:hover { background: #e74c3c; }
+
+  ul#todoList { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+  ul#todoList li {
+    display: flex; align-items: center; justify-content: space-between;
+    background: #f2f4f3; padding: 10px 12px; border-radius: 6px;
+  }
+  ul#todoList li.done span { text-decoration: line-through; color: #888; }
+  ul#todoList li span { cursor: pointer; flex: 1; }
+  ul#todoList li button { padding: 4px 10px; font-size: 12px; border-radius: 5px; }
+
+  #notesArea { width: 100%; min-height: 200px; resize: vertical; }
+  #noteStatus { font-size: 13px; color: #1b8a3f; min-height: 18px; margin-top: 8px; }
+
+  footer { text-align: center; color: #777; font-size: 13px; padding: 20px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>To-Do &amp; Notes App</h1>
+  <p>Tasks and notes are saved automatically using localStorage — refresh the page and they'll still be here.</p>
+</header>
+
+<main>
+  <section>
+    <h2>To-Do List</h2>
+    <div class="input-row">
+      <input type="text" id="todoInput" placeholder="Add a new task...">
+      <button class="btn" id="addTodoBtn">Add</button>
+    </div>
+    <ul id="todoList"></ul>
+    <p style="margin-top:14px;">
+      <button class="btn danger" id="clearTodosBtn">Clear All Tasks</button>
+    </p>
+  </section>
+
+  <section>
+    <h2>Notes</h2>
+    <textarea id="notesArea" placeholder="Write a note... it saves automatically as you type."></textarea>
+    <div id="noteStatus"></div>
+    <button class="btn danger" id="clearNotesBtn">Clear Notes</button>
+  </section>
+</main>
+
+<footer>Data persists using the browser's localStorage — it stays on this device until cleared.</footer>
+
+<script>
+  // ---------- STORAGE HELPERS ----------
+  // Wrapped in try/catch: some sandboxed preview environments block localStorage,
+  // so we fall back to an in-memory object for that session if needed.
+  var memoryStore = {};
+  var storageAvailable = true;
+
+  try {
+    var testKey = '__storage_test__';
+    localStorage.setItem(testKey, '1');
+    localStorage.removeItem(testKey);
+  } catch (e) {
+    storageAvailable = false;
+  }
+
+  function saveData(key, value) {
+    if (storageAvailable) {
+      localStorage.setItem(key, value);
+    } else {
+      memoryStore[key] = value;
+    }
+  }
+
+  function loadData(key) {
+    if (storageAvailable) {
+      return localStorage.getItem(key);
+    } else {
+      return memoryStore[key] || null;
+    }
+  }
+
+  // ---------- TO-DO LIST ----------
+  var TODO_KEY = 'todoApp.tasks';
+  var todoInput = document.getElementById('todoInput');
+  var addTodoBtn = document.getElementById('addTodoBtn');
+  var todoList = document.getElementById('todoList');
+  var clearTodosBtn = document.getElementById('clearTodosBtn');
+
+  function getTasks() {
+    var raw = loadData(TODO_KEY);
+    return raw ? JSON.parse(raw) : [];
+  }
+
+  function saveTasks(tasks) {
+    saveData(TODO_KEY, JSON.stringify(tasks));
+  }
+
+  function renderTasks() {
+    var tasks = getTasks();
+    todoList.innerHTML = '';
+    tasks.forEach(function (task, index) {
+      var li = document.createElement('li');
+      if (task.done) li.classList.add('done');
+
+      var span = document.createElement('span');
+      span.textContent = task.text;
+      span.addEventListener('click', function () {
+        var t = getTasks();
+        t[index].done = !t[index].done;
+        saveTasks(t);
+        renderTasks();
+      });
+
+      var removeBtn = document.createElement('button');
+      removeBtn.className = 'btn danger';
+      removeBtn.textContent = 'Remove';
+      removeBtn.addEventListener('click', function () {
+        var t = getTasks();
+        t.splice(index, 1);
+        saveTasks(t);
+        renderTasks();
+      });
+
+      li.appendChild(span);
+      li.appendChild(removeBtn);
+      todoList.appendChild(li);
+    });
+  }
+
+  function addTask() {
+    var text = todoInput.value.trim();
+    if (text === '') return;
+    var tasks = getTasks();
+    tasks.push({ text: text, done: false });
+    saveTasks(tasks);
+    todoInput.value = '';
+    renderTasks();
+  }
+
+  addTodoBtn.addEventListener('click', addTask);
+  todoInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') addTask();
+  });
+  clearTodosBtn.addEventListener('click', function () {
+    saveTasks([]);
+    renderTasks();
+  });
+
+  renderTasks();
+
+  // ---------- NOTES ----------
+  var NOTES_KEY = 'todoApp.notes';
+  var notesArea = document.getElementById('notesArea');
+  var noteStatus = document.getElementById('noteStatus');
+  var clearNotesBtn = document.getElementById('clearNotesBtn');
+  var saveTimeout;
+
+  notesArea.value = loadData(NOTES_KEY) || '';
+
+  notesArea.addEventListener('input', function () {
+    clearTimeout(saveTimeout);
+    noteStatus.textContent = 'Saving...';
+    saveTimeout = setTimeout(function () {
+      saveData(NOTES_KEY, notesArea.value);
+      noteStatus.textContent = '✅ Saved';
+    }, 400);
+  });
+
+  clearNotesBtn.addEventListener('click', function () {
+    notesArea.value = '';
+    saveData(NOTES_KEY, '');
+    noteStatus.textContent = 'Notes cleared';
+  });
+
+  if (!storageAvailable) {
+    noteStatus.textContent = 'Note: persistent storage is unavailable in this preview — data will reset on reload. It will persist normally when this file is opened in a regular browser.';
+  }
+</script>
+
+</body>
+</html>

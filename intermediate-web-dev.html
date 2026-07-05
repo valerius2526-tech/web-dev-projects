@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Intermediate HTML, CSS, and JavaScript</title>
+
+<!-- ===================== CSS ===================== -->
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f2f4f3;
+    color: #1c1c1c;
+    margin: 0;
+  }
+
+  header {
+    background: #0d5c4f;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+  }
+
+  header h1 { margin: 0 0 6px 0; }
+  header p { margin: 0; opacity: 0.9; }
+
+  /* ===== STEP 3: RESPONSIVE LAYOUT (Flexbox nav + CSS Grid content) ===== */
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    background: #0a4038;
+    padding: 12px;
+    flex-wrap: wrap;
+  }
+
+  nav a {
+    color: #d5efe9;
+    text-decoration: none;
+    font-weight: bold;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: background 0.2s;
+  }
+
+  nav a:hover { background: rgba(255,255,255,0.15); }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    max-width: 1000px;
+    margin: 30px auto;
+    padding: 0 20px;
+  }
+
+  @media (max-width: 700px) {
+    .layout {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  section {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+  }
+
+  section h2 {
+    color: #0d5c4f;
+    border-bottom: 2px solid #0d5c4f;
+    padding-bottom: 6px;
+    margin-top: 0;
+  }
+
+  /* ===== STEP 1: CONTACT FORM ===== */
+  form { display: flex; flex-direction: column; gap: 14px; }
+
+  label { font-weight: bold; font-size: 14px; }
+
+  input, textarea {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+  }
+
+  input:focus, textarea:focus {
+    outline: none;
+    border-color: #0d5c4f;
+    box-shadow: 0 0 0 2px rgba(13,92,79,0.15);
+  }
+
+  .error-text {
+    color: #c0392b;
+    font-size: 12px;
+    min-height: 16px;
+  }
+
+  input.invalid, textarea.invalid { border-color: #c0392b; }
+
+  button, .btn {
+    padding: 10px 18px;
+    font-size: 15px;
+    font-weight: bold;
+    color: #fff;
+    background: #0d5c4f;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  button:hover, .btn:hover { background: #14806e; transform: translateY(-1px); }
+
+  #formStatus { font-weight: bold; min-height: 20px; }
+  #formStatus.success { color: #1b8a3f; }
+  #formStatus.fail { color: #c0392b; }
+
+  /* ===== STEP 4: TO-DO LIST ===== */
+  .todo-input-row { display: flex; gap: 8px; margin-bottom: 14px; }
+  .todo-input-row input { flex: 1; }
+
+  #todoList { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+
+  #todoList li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f2f4f3;
+    padding: 10px 12px;
+    border-radius: 6px;
+  }
+
+  #todoList li.done span { text-decoration: line-through; color: #888; }
+
+  #todoList li span { cursor: pointer; flex: 1; }
+
+  #todoList li button {
+    background: #c0392b;
+    padding: 4px 10px;
+    font-size: 13px;
+    border-radius: 5px;
+  }
+
+  #todoList li button:hover { background: #e74c3c; }
+
+  footer {
+    text-align: center;
+    color: #777;
+    font-size: 13px;
+    padding: 20px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Intermediate HTML, CSS, and JavaScript</h1>
+  <p>Contact form validation, responsive layout, and a dynamic to-do list.</p>
+</header>
+
+<!-- Simple Flexbox nav -->
+<nav>
+  <a href="#contact-section">Contact Form</a>
+  <a href="#todo-section">To-Do List</a>
+</nav>
+
+<!-- ===== STEP 3: CSS Grid content layout ===== -->
+<div class="layout">
+
+  <!-- ===== STEP 1 & 2: CONTACT FORM + VALIDATION ===== -->
+  <section id="contact-section">
+    <h2>Contact Form</h2>
+    <form id="contactForm" novalidate>
+      <div>
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" placeholder="Your full name">
+        <div class="error-text" id="nameError"></div>
+      </div>
+
+      <div>
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="you@example.com">
+        <div class="error-text" id="emailError"></div>
+      </div>
+
+      <div>
+        <label for="message">Message</label>
+        <textarea id="message" name="message" rows="4" placeholder="How can we help?"></textarea>
+        <div class="error-text" id="messageError"></div>
+      </div>
+
+      <button type="submit">Submit</button>
+      <div id="formStatus"></div>
+    </form>
+  </section>
+
+  <!-- ===== STEP 4: DYNAMIC TO-DO LIST ===== -->
+  <section id="todo-section">
+    <h2>To-Do List</h2>
+    <div class="todo-input-row">
+      <input type="text" id="todoInput" placeholder="Add a new task...">
+      <button id="addTodoBtn" class="btn">Add</button>
+    </div>
+    <ul id="todoList"></ul>
+  </section>
+
+</div>
+
+<footer>Built to illustrate forms, JS validation, responsive Flexbox/Grid layouts, and DOM manipulation.</footer>
+
+<!-- ===================== JAVASCRIPT ===================== -->
+<script>
+  // ---------- STEP 2: FORM VALIDATION ----------
+  var form = document.getElementById('contactForm');
+  var nameInput = document.getElementById('name');
+  var emailInput = document.getElementById('email');
+  var messageInput = document.getElementById('message');
+  var status = document.getElementById('formStatus');
+
+  function setError(input, errorEl, message) {
+    if (message) {
+      input.classList.add('invalid');
+      errorEl.textContent = message;
+      return false;
+    } else {
+      input.classList.remove('invalid');
+      errorEl.textContent = '';
+      return true;
+    }
+  }
+
+  function isValidEmail(value) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    var nameOk = setError(nameInput, document.getElementById('nameError'),
+      nameInput.value.trim() === '' ? 'Name is required.' : '');
+
+    var emailOk = setError(emailInput, document.getElementById('emailError'),
+      emailInput.value.trim() === '' ? 'Email is required.' :
+      !isValidEmail(emailInput.value.trim()) ? 'Enter a valid email address.' : '');
+
+    var messageOk = setError(messageInput, document.getElementById('messageError'),
+      messageInput.value.trim() === '' ? 'Message cannot be empty.' : '');
+
+    if (nameOk && emailOk && messageOk) {
+      status.textContent = '✅ Form submitted successfully!';
+      status.className = 'success';
+      form.reset();
+    } else {
+      status.textContent = '⚠️ Please fix the errors above.';
+      status.className = 'fail';
+    }
+  });
+
+  // ---------- STEP 4: TO-DO LIST (DOM manipulation) ----------
+  var todoInput = document.getElementById('todoInput');
+  var addTodoBtn = document.getElementById('addTodoBtn');
+  var todoList = document.getElementById('todoList');
+
+  function addTodo() {
+    var text = todoInput.value.trim();
+    if (text === '') return;
+
+    var li = document.createElement('li');
+
+    var span = document.createElement('span');
+    span.textContent = text;
+    span.addEventListener('click', function () {
+      li.classList.toggle('done');
+    });
+
+    var removeBtn = document.createElement('button');
+    removeBtn.textContent = 'Remove';
+    removeBtn.addEventListener('click', function () {
+      li.remove();
+    });
+
+    li.appendChild(span);
+    li.appendChild(removeBtn);
+    todoList.appendChild(li);
+
+    todoInput.value = '';
+    todoInput.focus();
+  }
+
+  addTodoBtn.addEventListener('click', addTodo);
+  todoInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') addTodo();
+  });
+</script>
+
+</body>
+</html>

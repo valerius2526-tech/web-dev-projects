@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact — Shabd</title>
+<style>
+* { box-sizing: border-box; }
+
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #f2f4f3;
+  color: #1c1c1c;
+  margin: 0;
+}
+
+header.site-header {
+  background: #0d5c4f;
+  color: #fff;
+  padding: 20px;
+}
+
+.header-inner {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.brand {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+nav.main-nav {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+nav.main-nav a {
+  color: #d5efe9;
+  text-decoration: none;
+  font-weight: bold;
+  padding: 8px 14px;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+nav.main-nav a:hover,
+nav.main-nav a.active {
+  background: rgba(255,255,255,0.15);
+}
+
+main {
+  max-width: 900px;
+  margin: 30px auto;
+  padding: 0 20px 40px 20px;
+}
+
+.hero {
+  background: #fff;
+  border-radius: 12px;
+  padding: 40px 30px;
+  text-align: center;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+  margin-bottom: 24px;
+}
+
+.hero h1 { color: #0d5c4f; margin-top: 0; }
+.hero p { font-size: 17px; line-height: 1.6; }
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 700px) {
+  .card-grid { grid-template-columns: 1fr; }
+  .header-inner { flex-direction: column; text-align: center; }
+}
+
+.card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 18px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+  text-align: center;
+}
+
+.card .emoji { font-size: 34px; margin-bottom: 8px; }
+.card h3 { color: #0d5c4f; margin: 6px 0; }
+
+section.page-section {
+  background: #fff;
+  border-radius: 12px;
+  padding: 26px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+  margin-bottom: 20px;
+}
+
+section.page-section h2 {
+  color: #0d5c4f;
+  border-bottom: 2px solid #0d5c4f;
+  padding-bottom: 6px;
+  margin-top: 0;
+}
+
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 700px) {
+  .project-grid { grid-template-columns: 1fr; }
+}
+
+.project-card {
+  background: #f2f4f3;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.project-card h3 { color: #0d5c4f; margin-top: 0; }
+.tag {
+  display: inline-block;
+  background: #0d5c4f;
+  color: #fff;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 3px 8px;
+  border-radius: 12px;
+  margin: 2px 4px 2px 0;
+}
+
+form.contact-form { display: flex; flex-direction: column; gap: 14px; max-width: 500px; }
+form.contact-form label { font-weight: bold; font-size: 14px; }
+form.contact-form input,
+form.contact-form textarea {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+}
+form.contact-form button {
+  padding: 10px 18px;
+  font-size: 15px;
+  font-weight: bold;
+  color: #fff;
+  background: #0d5c4f;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+form.contact-form button:hover { background: #14806e; }
+#contactStatus { font-weight: bold; color: #1b8a3f; min-height: 20px; }
+
+footer.site-footer {
+  text-align: center;
+  color: #777;
+  font-size: 13px;
+  padding: 20px;
+}
+
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="brand">Shabd</div>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="projects.html">Projects</a>
+      <a href="contact.html" class="active">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="page-section">
+    <h2>Get in Touch</h2>
+    <form class="contact-form" id="contactForm">
+      <div>
+        <label for="name">Name</label><br>
+        <input type="text" id="name" required>
+      </div>
+      <div>
+        <label for="email">Email</label><br>
+        <input type="email" id="email" required>
+      </div>
+      <div>
+        <label for="message">Message</label><br>
+        <textarea id="message" rows="4" required></textarea>
+      </div>
+      <button type="submit">Send Message</button>
+      <div id="contactStatus"></div>
+    </form>
+  </section>
+</main>
+
+<footer class="site-footer">© 2026 Shabd. Built with HTML, CSS &amp; JavaScript.</footer>
+
+<script>
+  document.getElementById('contactForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    document.getElementById('contactStatus').textContent = '✅ Thanks! Your message has been sent.';
+    this.reset();
+  });
+</script>
+
+</body>
+</html>

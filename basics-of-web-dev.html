@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Basics of Web Development</title>
+
+<!-- ===================== STEP 2: CSS STYLING ===================== -->
+<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f2f4f3;
+    color: #1c1c1c;
+    margin: 0;
+    padding: 40px 20px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .page {
+    max-width: 700px;
+    width: 100%;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    padding: 30px 40px;
+  }
+
+  h1 {
+    color: #0d5c4f;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    color: #0d5c4f;
+    border-bottom: 2px solid #0d5c4f;
+    padding-bottom: 6px;
+  }
+
+  p {
+    line-height: 1.6;
+    font-size: 16px;
+  }
+
+  .banner-img {
+    width: 100%;
+    border-radius: 8px;
+    margin: 15px 0;
+  }
+
+  a {
+    color: #1b8a72;
+    font-weight: bold;
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+
+  button {
+    display: block;
+    margin: 25px auto 10px auto;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #0d5c4f;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+  }
+
+  button:hover {
+    background-color: #14806e;
+    transform: translateY(-2px);
+  }
+
+  footer {
+    text-align: center;
+    font-size: 13px;
+    color: #777;
+    margin-top: 30px;
+  }
+</style>
+</head>
+
+<body>
+
+<!-- ===================== STEP 1: HTML STRUCTURE ===================== -->
+<div class="page">
+
+  <h1>Basics of Web Development</h1>
+  <p style="text-align:center;">A simple demo page built with HTML, styled with CSS, and made interactive with JavaScript.</p>
+
+  <h2>About This Page</h2>
+  <p>
+    This webpage demonstrates the foundational building blocks of web development:
+    structuring content with HTML, styling it with CSS, and adding interactivity with JavaScript.
+  </p>
+
+  <svg class="banner-img" viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustration of a laptop displaying code">
+    <rect width="800" height="300" rx="12" fill="#0d5c4f"/>
+    <rect x="60" y="50" width="680" height="160" rx="8" fill="#1c1c1c"/>
+    <rect x="80" y="70" width="200" height="14" rx="3" fill="#f4b942"/>
+    <rect x="80" y="95" width="320" height="14" rx="3" fill="#4fb3a9"/>
+    <rect x="80" y="120" width="260" height="14" rx="3" fill="#4fb3a9"/>
+    <rect x="80" y="145" width="340" height="14" rx="3" fill="#f4b942"/>
+    <rect x="80" y="170" width="180" height="14" rx="3" fill="#4fb3a9"/>
+    <rect x="120" y="220" width="560" height="16" rx="8" fill="#0a4038"/>
+    <text x="400" y="270" font-family="Arial, sans-serif" font-size="20" fill="#ffffff" text-anchor="middle" font-weight="bold">HTML • CSS • JavaScript</text>
+  </svg>
+
+  <h2>Useful Links</h2>
+  <p>
+    Learn more at
+    <a href="https://developer.mozilla.org/en-US/docs/Web" target="_blank">MDN Web Docs</a>
+    or explore examples on
+    <a href="https://www.w3schools.com/" target="_blank">W3Schools</a>.
+  </p>
+
+  <h2>Try the Interactivity</h2>
+  <p style="text-align:center;">Click the button below to see JavaScript in action:</p>
+
+  <!-- ===================== STEP 3: JAVASCRIPT INTERACTIVITY ===================== -->
+  <button id="clickBtn">Click Me!</button>
+  <p id="jsMessage" style="text-align:center; font-weight:bold; color:#0d5c4f; min-height: 24px;"></p>
+
+  <footer>Built to illustrate HTML structure, CSS styling, and JS interactivity.</footer>
+</div>
+
+<script>
+  var btn = document.getElementById('clickBtn');
+  var msg = document.getElementById('jsMessage');
+  var clickCount = 0;
+
+  btn.addEventListener('click', function () {
+    clickCount++;
+    msg.textContent = "🎉 Nice! You just triggered a JavaScript event. (Clicked " + clickCount + " time" + (clickCount > 1 ? "s" : "") + ")";
+    // Also try a browser alert as a bonus (works when popups aren't blocked)
+    try {
+      alert("🎉 Nice! You just triggered a JavaScript event.");
+    } catch (e) {
+      // Alerts may be blocked in some embedded viewers — the on-page message above still works.
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shabd Shop</title>
+
+<!--
+  PERFORMANCE NOTES (Step 2: Optimize for Performance)
+  - Single HTML file: CSS and JS are inlined here to minimize HTTP requests
+    (no separate .css/.js files to fetch, no external font/icon requests).
+  - Product images use loading="lazy" so off-screen images aren't fetched
+    until the user scrolls near them.
+  - Cart/search interactions are handled with plain, lightweight vanilla JS
+    (no heavy frameworks), keeping the file small and fast to parse.
+  - Input handlers (search box) are debounced to avoid re-rendering on
+    every keystroke.
+-->
+
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f2f4f3;
+    color: #1c1c1c;
+    margin: 0;
+  }
+
+  header.site-header {
+    background: #0d5c4f;
+    color: #fff;
+    padding: 16px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .header-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .brand { font-size: 22px; font-weight: bold; }
+
+  #searchInput {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    min-width: 200px;
+  }
+
+  #cartToggleBtn {
+    position: relative;
+    background: #14806e;
+    color: #fff;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  #cartCount {
+    background: #f4b942;
+    color: #1c1c1c;
+    border-radius: 50%;
+    padding: 1px 7px;
+    font-size: 12px;
+    margin-left: 6px;
+  }
+
+  main {
+    max-width: 1100px;
+    margin: 24px auto;
+    padding: 0 20px 40px 20px;
+  }
+
+  .controls {
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px 20px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+    margin-bottom: 20px;
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .control-group { display: flex; flex-direction: column; gap: 4px; }
+  .control-group label { font-size: 12px; font-weight: bold; color: #0d5c4f; }
+
+  select {
+    padding: 7px 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+  }
+
+  #resultCount { margin-left: auto; font-size: 13px; color: #555; }
+
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+
+  @media (max-width: 900px) { .product-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 700px) { .product-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 460px) {
+    .product-grid { grid-template-columns: 1fr; }
+    .controls { flex-direction: column; align-items: stretch; }
+    #resultCount { margin-left: 0; }
+    .header-inner { flex-direction: column; align-items: stretch; }
+    #searchInput { width: 100%; }
+  }
+
+  .product-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 14px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .product-card img {
+    width: 100%;
+    height: 110px;
+    object-fit: contain;
+    background: #f2f4f3;
+    border-radius: 8px;
+  }
+
+  .category {
+    align-self: flex-start;
+    background: #e2ece9;
+    color: #0d5c4f;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 3px 7px;
+    border-radius: 10px;
+    text-transform: uppercase;
+  }
+
+  .product-card h3 { margin: 2px 0; font-size: 15px; }
+  .price { font-weight: bold; color: #0d5c4f; }
+  .rating { color: #d68a00; font-size: 13px; }
+
+  .add-btn {
+    margin-top: auto;
+    padding: 8px;
+    background: #0d5c4f;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .add-btn:hover { background: #14806e; }
+
+  #emptyState { text-align: center; padding: 40px; color: #777; display: none; }
+
+  /* ---- CART DRAWER ---- */
+  #cartOverlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 20;
+  }
+
+  #cartDrawer {
+    position: fixed;
+    top: 0; right: 0;
+    width: 340px;
+    max-width: 90vw;
+    height: 100%;
+    background: #fff;
+    box-shadow: -4px 0 20px rgba(0,0,0,0.15);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow-y: auto;
+  }
+
+  #cartDrawer h2 { color: #0d5c4f; margin: 0; }
+
+  .cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f2f4f3;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 14px;
+  }
+
+  .cart-item button {
+    background: #c0392b;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 3px 8px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+
+  #cartTotal { font-weight: bold; font-size: 16px; color: #0d5c4f; }
+
+  #closeCartBtn {
+    align-self: flex-end;
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: #777;
+  }
+
+  #checkoutBtn {
+    padding: 10px;
+    background: #0d5c4f;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  #checkoutBtn:hover { background: #14806e; }
+  #checkoutBtn:disabled { background: #aaa; cursor: not-allowed; }
+
+  #checkoutStatus { font-size: 13px; color: #1b8a3f; font-weight: bold; min-height: 18px; }
+
+  footer.site-footer { text-align: center; color: #777; font-size: 13px; padding: 20px; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="brand">🛍️ Shabd Shop</div>
+    <input type="text" id="searchInput" placeholder="Search products...">
+    <button id="cartToggleBtn">Cart <span id="cartCount">0</span></button>
+  </div>
+</header>
+
+<main>
+  <div class="controls">
+    <div class="control-group">
+      <label for="categoryFilter">Category</label>
+      <select id="categoryFilter">
+        <option value="all">All</option>
+        <option value="Electronics">Electronics</option>
+        <option value="Apparel">Apparel</option>
+        <option value="Home">Home</option>
+        <option value="Sports">Sports</option>
+      </select>
+    </div>
+    <div class="control-group">
+      <label for="sortBy">Sort By</label>
+      <select id="sortBy">
+        <option value="default">Default</option>
+        <option value="price-asc">Price: Low to High</option>
+        <option value="price-desc">Price: High to Low</option>
+        <option value="rating-desc">Rating: High to Low</option>
+      </select>
+    </div>
+    <div id="resultCount"></div>
+  </div>
+
+  <div class="product-grid" id="productGrid"></div>
+  <div id="emptyState">No products match your search or filter.</div>
+</main>
+
+<!-- CART DRAWER -->
+<div id="cartOverlay"></div>
+<div id="cartDrawer" style="display:none;">
+  <button id="closeCartBtn">✕</button>
+  <h2>Your Cart</h2>
+  <div id="cartItems"></div>
+  <div id="cartTotal"></div>
+  <button id="checkoutBtn">Checkout</button>
+  <div id="checkoutStatus"></div>
+</div>
+
+<footer class="site-footer">
+  © 2026 Shabd Shop — Capstone project combining HTML, CSS, and JavaScript.<br>
+  Tested for responsiveness across desktop, tablet, and mobile breakpoints.
+</footer>
+
+<script>
+  /* ======================================================
+     STEP 1: FULL WEB APPLICATION (product data + cart logic)
+     ====================================================== */
+
+  var products = [
+    { id: 1, name: "Wireless Headphones", category: "Electronics", price: 89.99, rating: 4.5, img: "https://placehold.co/150x110?text=Headphones" },
+    { id: 2, name: "Smart Watch", category: "Electronics", price: 149.99, rating: 4.2, img: "https://placehold.co/150x110?text=Watch" },
+    { id: 3, name: "Bluetooth Speaker", category: "Electronics", price: 45.5, rating: 4.0, img: "https://placehold.co/150x110?text=Speaker" },
+    { id: 4, name: "Cotton T-Shirt", category: "Apparel", price: 19.99, rating: 4.3, img: "https://placehold.co/150x110?text=T-Shirt" },
+    { id: 5, name: "Denim Jacket", category: "Apparel", price: 59.99, rating: 4.6, img: "https://placehold.co/150x110?text=Jacket" },
+    { id: 6, name: "Running Shoes", category: "Apparel", price: 79.99, rating: 4.7, img: "https://placehold.co/150x110?text=Shoes" },
+    { id: 7, name: "Ceramic Mug Set", category: "Home", price: 24.99, rating: 4.1, img: "https://placehold.co/150x110?text=Mugs" },
+    { id: 8, name: "Throw Blanket", category: "Home", price: 34.99, rating: 4.4, img: "https://placehold.co/150x110?text=Blanket" },
+    { id: 9, name: "Table Lamp", category: "Home", price: 42.0, rating: 3.9, img: "https://placehold.co/150x110?text=Lamp" },
+    { id: 10, name: "Yoga Mat", category: "Sports", price: 29.99, rating: 4.5, img: "https://placehold.co/150x110?text=Yoga+Mat" },
+    { id: 11, name: "Dumbbell Set", category: "Sports", price: 65.0, rating: 4.6, img: "https://placehold.co/150x110?text=Dumbbells" },
+    { id: 12, name: "Water Bottle", category: "Sports", price: 14.99, rating: 4.2, img: "https://placehold.co/150x110?text=Bottle" }
+  ];
+
+  var cart = {}; // { productId: quantity }
+
+  var categoryFilter = document.getElementById('categoryFilter');
+  var sortBy = document.getElementById('sortBy');
+  var searchInput = document.getElementById('searchInput');
+  var productGrid = document.getElementById('productGrid');
+  var emptyState = document.getElementById('emptyState');
+  var resultCount = document.getElementById('resultCount');
+
+  function renderProducts() {
+    var filtered = products.slice();
+
+    var cat = categoryFilter.value;
+    if (cat !== 'all') {
+      filtered = filtered.filter(function (p) { return p.category === cat; });
+    }
+
+    var query = searchInput.value.trim().toLowerCase();
+    if (query) {
+      filtered = filtered.filter(function (p) { return p.name.toLowerCase().indexOf(query) !== -1; });
+    }
+
+    var sort = sortBy.value;
+    if (sort === 'price-asc') filtered.sort(function (a, b) { return a.price - b.price; });
+    else if (sort === 'price-desc') filtered.sort(function (a, b) { return b.price - a.price; });
+    else if (sort === 'rating-desc') filtered.sort(function (a, b) { return b.rating - a.rating; });
+
+    productGrid.innerHTML = '';
+    resultCount.textContent = filtered.length + ' product' + (filtered.length !== 1 ? 's' : '');
+
+    if (filtered.length === 0) {
+      emptyState.style.display = 'block';
+      return;
+    }
+    emptyState.style.display = 'none';
+
+    filtered.forEach(function (p) {
+      var card = document.createElement('div');
+      card.className = 'product-card';
+      card.innerHTML =
+        '<img src="' + p.img + '" alt="' + p.name + '" loading="lazy">' +
+        '<span class="category">' + p.category + '</span>' +
+        '<h3>' + p.name + '</h3>' +
+        '<div class="price">$' + p.price.toFixed(2) + '</div>' +
+        '<div class="rating">★ ' + p.rating.toFixed(1) + '</div>' +
+        '<button class="add-btn" data-id="' + p.id + '">Add to Cart</button>';
+      productGrid.appendChild(card);
+    });
+  }
+
+  // Debounce helper — avoids re-rendering on every single keystroke (Step 2: performance)
+  function debounce(fn, delay) {
+    var timer;
+    return function () {
+      var args = arguments;
+      clearTimeout(timer);
+      timer = setTimeout(function () { fn.apply(null, args); }, delay);
+    };
+  }
+
+  categoryFilter.addEventListener('change', renderProducts);
+  sortBy.addEventListener('change', renderProducts);
+  searchInput.addEventListener('input', debounce(renderProducts, 250));
+
+  productGrid.addEventListener('click', function (e) {
+    if (e.target.classList.contains('add-btn')) {
+      var id = e.target.getAttribute('data-id');
+      cart[id] = (cart[id] || 0) + 1;
+      updateCartUI();
+    }
+  });
+
+  renderProducts();
+
+  /* ======================================================
+     CART DRAWER
+     ====================================================== */
+  var cartToggleBtn = document.getElementById('cartToggleBtn');
+  var closeCartBtn = document.getElementById('closeCartBtn');
+  var cartOverlay = document.getElementById('cartOverlay');
+  var cartDrawer = document.getElementById('cartDrawer');
+  var cartItemsEl = document.getElementById('cartItems');
+  var cartTotalEl = document.getElementById('cartTotal');
+  var cartCountEl = document.getElementById('cartCount');
+  var checkoutBtn = document.getElementById('checkoutBtn');
+  var checkoutStatus = document.getElementById('checkoutStatus');
+
+  function openCart() {
+    cartOverlay.style.display = 'block';
+    cartDrawer.style.display = 'flex';
+  }
+  function closeCart() {
+    cartOverlay.style.display = 'none';
+    cartDrawer.style.display = 'none';
+  }
+  cartToggleBtn.addEventListener('click', openCart);
+  closeCartBtn.addEventListener('click', closeCart);
+  cartOverlay.addEventListener('click', closeCart);
+
+  function updateCartUI() {
+    var totalItems = 0;
+    var totalPrice = 0;
+    cartItemsEl.innerHTML = '';
+
+    var ids = Object.keys(cart);
+    if (ids.length === 0) {
+      cartItemsEl.innerHTML = '<p style="color:#777;">Your cart is empty.</p>';
+    }
+
+    ids.forEach(function (id) {
+      var product = products.find(function (p) { return p.id === Number(id); });
+      var qty = cart[id];
+      totalItems += qty;
+      totalPrice += product.price * qty;
+
+      var row = document.createElement('div');
+      row.className = 'cart-item';
+      row.innerHTML =
+        '<span>' + product.name + ' × ' + qty + '</span>' +
+        '<button data-id="' + id + '">Remove</button>';
+      cartItemsEl.appendChild(row);
+    });
+
+    cartCountEl.textContent = totalItems;
+    cartTotalEl.textContent = 'Total: $' + totalPrice.toFixed(2);
+    checkoutBtn.disabled = totalItems === 0;
+    checkoutStatus.textContent = '';
+  }
+
+  cartItemsEl.addEventListener('click', function (e) {
+    if (e.target.tagName === 'BUTTON') {
+      var id = e.target.getAttribute('data-id');
+      delete cart[id];
+      updateCartUI();
+    }
+  });
+
+  checkoutBtn.addEventListener('click', function () {
+    checkoutStatus.textContent = '✅ Order placed! Thank you for shopping with Shabd Shop.';
+    cart = {};
+    updateCartUI();
+  });
+
+  updateCartUI();
+</script>
+
+</body>
+</html>
